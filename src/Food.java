@@ -1,6 +1,4 @@
-import simObject;
-
-public class Food extends simObject
+public class Food extends SimObject
 {
     /** Attributes */
     /**

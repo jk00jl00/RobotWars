@@ -1,6 +1,4 @@
-import simObject;
-
-public class Light extends simObject
+public class Light extends SimObject
 {
     /** Attributes */
     /**
