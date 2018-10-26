@@ -1,6 +1,6 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
-
+/*Controller class*/
 public class Controller implements Runnable
 
 {
