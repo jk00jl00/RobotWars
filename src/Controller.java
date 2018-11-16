@@ -121,7 +121,7 @@ public class Controller implements Runnable
     }
 
     public static void main(String[] args) {
-        new Controller(9, 9).start();
+        new Controller(30, 30).start();
     }
 }
 

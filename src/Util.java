@@ -37,9 +37,9 @@ public class Util {
     }
 
     public static boolean inLine(int[] a, int[] b, int[] c) {
-        double dAC = Math.floor(Math.sqrt((a[0] - c[0]) * (a[0] - c[0]) + (a[1] - c[1]) * (a[1] - c[1])));
-        double dBC = Math.floor(Math.sqrt((b[0] - c[0]) * (b[0] - c[0]) + (b[1] - c[1]) * (b[1] - c[1])));
-        double dAB = Math.floor(Math.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])));
+        double dAC = Math.round(Math.sqrt((a[0] - c[0]) * (a[0] - c[0]) + (a[1] - c[1]) * (a[1] - c[1])));
+        double dBC = Math.round(Math.sqrt((b[0] - c[0]) * (b[0] - c[0]) + (b[1] - c[1]) * (b[1] - c[1])));
+        double dAB = Math.round(Math.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])));
         return dAB == dAC + dBC;
     }
 }

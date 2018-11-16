@@ -36,12 +36,13 @@ public class World
      * 
      */
     private int columns;
+    private char empty = ' ';
+    private double maxwalls = 150;
+
     /**
      * Used when genearing the world to
      */
     private int boxHeight = 9;
-    
-    private char empty = ' ';
     /**
      *
      */
@@ -92,9 +93,16 @@ public class World
 
         for(int r = 0; r < rows/boxHeight; r++) {
             for (int c = 0; c < columns/boxWidth ; c++) {
-                generateCell(r, c);
+                if(c < columns/boxWidth - 1)
+                    generateCell(r, c);
+                else if(!(r < rows/boxHeight - 1) ^ !(c < columns/boxWidth - 1))
+                    generateCell(r, c, (!(r < rows/boxHeight - 1))?boxHeight + rows%boxHeight:boxHeight, (!(c < columns/boxWidth - 1))?boxWidth + columns%boxWidth:boxWidth);
+                else
+                    generateCell(r, c,boxHeight + rows%boxHeight , boxWidth + columns%boxWidth);
+
             }
         }
+
 
        generateLight();
     }
@@ -138,9 +146,11 @@ public class World
         }
     }
 
-    private void generateCell(int r, int c) {
-        int lPosY = ThreadLocalRandom.current().nextInt(0, 9);
-        int lPosX = ThreadLocalRandom.current().nextInt(0, 9);
+
+    private void generateCell(int r, int c) {generateCell(r, c, boxHeight, boxWidth);}
+    private void generateCell(int r, int c, int rLimit, int cLimit) {
+        int lPosY = ThreadLocalRandom.current().nextInt(0, rLimit);
+        int lPosX = ThreadLocalRandom.current().nextInt(0, cLimit);
 
         places[lPosX + c * boxWidth + ((lPosY + r * boxHeight) * columns)] = 'L';
         this.objects.add(new Light(lPosX + c * boxWidth + (lPosY + r *boxHeight) * columns, ThreadLocalRandom.current().nextInt(minLightRadius, maxLightRadius + 1)));
@@ -150,8 +160,8 @@ public class World
             int x;
             int y;
             do{
-                x = ThreadLocalRandom .current().nextInt(0, 9);
-                y = ThreadLocalRandom.current().nextInt(0, 9);
+                x = ThreadLocalRandom .current().nextInt(0, cLimit);
+                y = ThreadLocalRandom.current().nextInt(0, rLimit);
             } while (places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
             objects.add(new Food(y * columns + x, 50));
             places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = objects.get(objects.size()- 1).represent;
@@ -159,12 +169,11 @@ public class World
         int x;
         int y;
         do {
-            x = ThreadLocalRandom.current().nextInt(1, 8);
-            y = ThreadLocalRandom.current().nextInt(1, 8);
+            x = ThreadLocalRandom.current().nextInt(1, cLimit-1);
+            y = ThreadLocalRandom.current().nextInt(1, rLimit-1);
         } while(places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
         objects.add(new Wall(y * columns + x));
         places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = 'X';
-        double maxwalls = 50;
         double walls = 1;
         double rnd = ThreadLocalRandom.current().nextDouble(0,1);
         wallLoop:
@@ -216,8 +225,8 @@ public class World
         }
 
         do {
-            x = ThreadLocalRandom.current().nextInt(0, 9);
-            y = ThreadLocalRandom.current().nextInt(0, 9);
+            x = ThreadLocalRandom.current().nextInt(0, cLimit);
+            y = ThreadLocalRandom.current().nextInt(0, rLimit);
         } while(places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
 
         places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = 'R';
