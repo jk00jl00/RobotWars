@@ -10,6 +10,7 @@ public abstract class SimObject
      * The character used to represent the object.
      */
     protected char represent;
+
     /**
      * Operation
      *
@@ -28,6 +29,8 @@ public abstract class SimObject
     public abstract boolean isSolid ();
 
 
-
+    public int getPos() {
+        return this.position;
+    }
 }
 

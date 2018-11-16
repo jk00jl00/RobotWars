@@ -21,5 +21,9 @@ public class Light extends SimObject
     public boolean isSolid() {
         return true;
     }
+
+    public int getRadius() {
+        return radius;
+    }
 }
 

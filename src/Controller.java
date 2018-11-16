@@ -75,7 +75,6 @@ public class Controller implements Runnable
      * Contains the simulationloop that runs the simulation.
      */
     public void run (  ){
-        Scanner sc = new Scanner(System.in);
         while(running){
             int ticks =  0;
             while(ticks < fps){
@@ -83,6 +82,7 @@ public class Controller implements Runnable
                 ticks++;
             }
             draw();
+            Util.drawLight(world, collumns, rows);
             fps = 0;
             do{
                try{
@@ -121,7 +121,7 @@ public class Controller implements Runnable
     }
 
     public static void main(String[] args) {
-        new Controller(81, 81).start();
+        new Controller(9, 9).start();
     }
 }
 

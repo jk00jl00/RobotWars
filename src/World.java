@@ -23,11 +23,11 @@ public class World
     /**
      * 
      */
-    private Robot[] robots;
+    private ArrayList<Robot> robots;
     /**
      * 
      */
-    private Object[] objects;
+    private ArrayList<SimObject>  objects;
     /**
      * 
      */
@@ -48,6 +48,9 @@ public class World
     private int boxWidth = 9;
     /** Associations */
     private Robot unnamed_1;
+    private int maxLightRadius = 9;
+    private int minLightRadius = 5;
+
     /**
      * Operation
      *
@@ -79,6 +82,8 @@ public class World
         size = columns * rows;
         this.places = new char[size];
         this.light = new int[size];
+        this.objects = new ArrayList<>();
+        robots = new ArrayList<>();
 
         for(int i = 0; i < places.length; i++){
             places[i] = empty;
@@ -90,16 +95,55 @@ public class World
                 generateCell(r, c);
             }
         }
+
+       generateLight();
+    }
+
+    private void generateLight() {
+        ArrayList<Light> l = new ArrayList<>();
+        for(SimObject simObject: objects)
+            if(simObject instanceof Light) l.add((Light)simObject);
+
+        for(int i = 0 ; i < rows * columns ; i++){
+            light[i] = 0;
+        }
+
+        for(Light li : l) {
+            int x = li.getPos() % columns;
+            int y = (li.getPos() - x) / columns;
+            ArrayList<int[]> blocked = new ArrayList<>();
+
+
+            light[li.getPos()] += li.getRadius();
+
+            for (int i = 1; i < li.getRadius(); i++) {
+                for (int dy = -i; dy <= i; dy++) {
+                    if (dy == -i || dy == i)
+                        for (int dx = -i; dx <= i; dx++) {
+                            if((x + dx >= columns || dx+ x < 0) ||(y + dy >= rows || y + dy < 0)) continue;
+                            if(places[x + dx + (dy + y) * columns] == 'X') blocked.add(new int[]{x+ dx, y+ dy});
+                                if(!Util.blocked(this, blocked, x, y, rows, columns, dx, dy))
+                            light[x + dx + (dy + y) * columns] += li.getRadius() - i;
+                        }
+                    else {
+                        for (int dx = -i; dx <= i; dx += i * 2) {
+                            if((x + dx >= columns || dx+ x < 0) ||(y + dy >= rows || y + dy < 0)) continue;
+                            if(places[x + dx + (dy + y) * columns] == 'X') blocked.add(new int[]{x+ dx, y+ dy});
+                            if(!Util.blocked(this, blocked, x, y, rows, columns, dx, dy))
+                                light[x + dx + (dy + y) * columns] += li.getRadius() - i;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void generateCell(int r, int c) {
         int lPosY = ThreadLocalRandom.current().nextInt(0, 9);
         int lPosX = ThreadLocalRandom.current().nextInt(0, 9);
 
-        lPosX = 8;
-        lPosY = 8;
-
         places[lPosX + c * boxWidth + ((lPosY + r * boxHeight) * columns)] = 'L';
+        this.objects.add(new Light(lPosX + c * boxWidth + (lPosY + r *boxHeight) * columns, ThreadLocalRandom.current().nextInt(minLightRadius, maxLightRadius + 1)));
 
         for(int i = ThreadLocalRandom.current().nextInt(0, fuelPerCell); i < fuelPerCell; i++){
             Food f = null;
@@ -109,15 +153,16 @@ public class World
                 x = ThreadLocalRandom .current().nextInt(0, 9);
                 y = ThreadLocalRandom.current().nextInt(0, 9);
             } while (places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
-            places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = new Food(x, y).represent;
+            objects.add(new Food(y * columns + x, 50));
+            places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = objects.get(objects.size()- 1).represent;
         }
         int x;
         int y;
         do {
-            x = ThreadLocalRandom.current().nextInt(0, 9);
-            y = ThreadLocalRandom.current().nextInt(0, 9);
+            x = ThreadLocalRandom.current().nextInt(1, 8);
+            y = ThreadLocalRandom.current().nextInt(1, 8);
         } while(places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
-
+        objects.add(new Wall(y * columns + x));
         places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = 'X';
         double maxwalls = 50;
         double walls = 1;
@@ -128,31 +173,31 @@ public class World
             ArrayList<Integer> indexes = new ArrayList<>();
 
             for(int dx = -1;dx < 2; dx += 2 ) {
-                if((x + dx >= boxWidth) || (x + dx < 0)) continue;
+                if((x + dx >= boxWidth) || (x + dx < 0) || Util.notEmpty(empty, x + dx + c * boxWidth,y + r * boxHeight, columns, places)) continue;
+                if((x + dx + c * boxWidth >= columns - 1) || (x + dx + c * boxWidth < 1)) continue;
                 int foundwalls = 0;
 
                 for(int wdx = -1; wdx < 2; wdx += 2){
-                    if((x + dx + wdx >= boxWidth) || (x+ dx + wdx < 0)) continue;
-                    if(places[(x + wdx + dx + (c * boxWidth)) + ((y + r) * columns)] == 'X') foundwalls++;
+                    if((x + dx + wdx + c * boxWidth >= columns - 1) || (x+ dx + wdx + c * boxWidth < 1)) continue;
+                    if(Util.isWall(places, x + dx + wdx + c * boxWidth, y + r * boxHeight, columns)) foundwalls++;
                 }
                 for(int wdy = -1; wdy < 2; wdy += 2){
-                    if((y + wdy >= boxHeight)|| (y + wdy < 0)) continue;
-                    if(places[(x + dx + c* boxWidth) + (y + wdy + c * boxHeight) * columns] == 'X') foundwalls++;
+                    if((y + wdy + r * boxHeight >= rows - 1)|| (y + wdy + r * boxHeight < 1)) continue;
+                    if(Util.isWall(places, x + dx +  c * boxWidth, y + wdy + r * boxHeight, columns)) foundwalls++;
                 }
-
                 if(foundwalls < 2) indexes.add((x + dx + c* boxWidth) + (y + r * boxHeight) * columns);
             }
             for(int dy = -1;dy < 2; dy += 2 ) {
-                if((y + dy >= boxHeight)|| (y + dy < 0)) continue;
+                if((y + dy + r * boxHeight>= rows - 1)|| (y + dy + r * boxHeight < 1) || Util.notEmpty(empty, x  + c * boxWidth,y + dy+ r * boxHeight, columns, places)) continue;
                 int foundwalls = 0;
 
                 for(int wdx = -1; wdx < 2; wdx += 2){
-                    if((wdx + x >= boxHeight)|| (x + wdx < 0)) continue;
-                    if(places[(x + wdx + c* boxWidth) + ((y + dy + r * boxHeight) * columns)] == 'X') foundwalls++;
+                    if((wdx + x + c * boxWidth >= columns - 1)|| (x + wdx + c * boxWidth < 1)) continue;
+                    if(Util.isWall(places, x + wdx + c * boxWidth, y + dy+ r * boxHeight, columns)) foundwalls++;
                 }
                 for(int wdy = -1; wdy < 2; wdy += 2){
-                    if((y + dy + wdy >= boxHeight)|| (y + dy + wdy< 0)) continue;
-                    if(places[(x  + c* boxWidth) + ((y + wdy +dy + r * boxHeight) * columns)] == 'X') foundwalls++;
+                    if((y + dy + wdy + r * boxHeight >= rows - 1)|| (y + dy + wdy + r* boxHeight< 1)) continue;
+                    if(Util.isWall(places, x+ c * boxWidth , y + dy + wdy + r * boxHeight, columns)) foundwalls++;
                 }
 
                 if(foundwalls < 2) indexes.add((x + c* boxWidth) + ((y + dy + r * boxHeight) * columns));
@@ -162,6 +207,7 @@ public class World
             int rndm = ThreadLocalRandom.current().nextInt(0, indexes.size());
 
             places[indexes.get(rndm)] = 'X';
+            objects.add(new Wall(indexes.get(rndm)));
 
             x = indexes.get(rndm) % columns - c * boxWidth;
             y = (indexes.get(rndm) - x )/ columns - r * boxHeight;
@@ -175,6 +221,7 @@ public class World
         } while(places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
 
         places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = 'R';
+        robots.add(new LightRobot((x+ c* boxWidth) + (y + r * boxHeight) * columns));
     }
 
     /**
@@ -188,5 +235,9 @@ public class World
      *
      */
     private void placeFood (  ){}
+
+    public int[] getLight() {
+        return light;
+    }
 }
 
