@@ -133,8 +133,6 @@ public class World
 
                 for(int wdx = -1; wdx < 2; wdx += 2){
                     if((x + dx + wdx >= boxWidth) || (x+ dx + wdx < 0)) continue;
-                    System.out.println("X:" + (x+ dx + wdx));
-                    System.out.println("R: " + (r * boxHeight));
                     if(places[(x + wdx + dx + (c * boxWidth)) + ((y + r) * columns)] == 'X') foundwalls++;
                 }
                 for(int wdy = -1; wdy < 2; wdy += 2){
@@ -164,8 +162,10 @@ public class World
             int rndm = ThreadLocalRandom.current().nextInt(0, indexes.size());
 
             places[indexes.get(rndm)] = 'X';
-            x = indexes.get(rndm) % columns;
-            y = (indexes.get(rndm) - x )/ columns;
+
+            x = indexes.get(rndm) % columns - c * boxWidth;
+            y = (indexes.get(rndm) - x )/ columns - r * boxHeight;
+
             walls++;
         }
 
