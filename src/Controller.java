@@ -119,5 +119,9 @@ public class Controller implements Runnable
         if(i <= 0) i = 1;
         return i;
     }
+
+    public static void main(String[] args) {
+        new Controller(81, 81).start();
+    }
 }
 

@@ -27,5 +27,7 @@ public abstract class SimObject
      */
     public abstract boolean isSolid ();
 
+
+
 }
 

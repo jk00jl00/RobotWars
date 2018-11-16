@@ -24,6 +24,13 @@ public class Out
      *
      * @param p -
      */
-    public void output ( char[] p ){}
+    public void output ( char[] p ){
+        for(int y = 0; y < rows; y++){
+            for(int x = 0; x < columns; x++){
+                System.out.print(" " + p[x + y*columns] + " ");
+            }
+            System.out.print(System.lineSeparator());
+        }
+    }
 }
 

@@ -24,31 +24,41 @@ public abstract class Robot
      * @param pos - 
      * @return Robot
      */
-    public Robot  ( int pos );
+    public Robot ( int pos ){
+
+    }
 
     /**
      * Operation findFood
      *
      */
-    private void findFood (  );
+    private void findFood (  ){
+
+    };
 
     /**
      * Operation move
      *
      */
-    private void move (  );
+    private void move (  ){
+
+    }
 
     /**
      * Operation update
      *
      */
-    private void update (  );
+    private void update (  ){
+
+    }
 
     /**
      * Operation idle
      *
      */
-    private void idle (  );
+    private void idle (  ){
+
+    }
 
 }
 
