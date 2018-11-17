@@ -1,13 +1,13 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
 /*Controller class*/
-public class Controller implements Runnable
+public class Controller
 
 {
     /**
      * Keeps tab on if the simulation is running
      */
-    private boolean running = false;
+    //private boolean running = false;
     /**
      * Keeps track on the amount of collumns in the world
      */
@@ -32,7 +32,7 @@ public class Controller implements Runnable
     /**
      * The thread running the simulation
      */
-    private Thread thread;
+   // private Thread thread;
     /**
      * Constructor
      *
@@ -50,17 +50,18 @@ public class Controller implements Runnable
      *  Creates a new Thread and starts the simulation loop.
      */
     public synchronized void start (  ){
-        if(!running){
+       /* if(!running){
             running = true;
             thread = new Thread(this);
             thread.start();
-        }
+        }*/
+       run();
     }
     /**
      * Method stop
      * Closes the simulation loop and joins the simulation thread with the main thread.
      */
-    public void stop (  ){
+    /*public void stop (  ){
         if(running) {
             running = false;
             try {
@@ -69,20 +70,20 @@ public class Controller implements Runnable
                 e.printStackTrace();
             }
         }
-    }
+    }*/
     /**
      * Method run
      * Contains the simulationloop that runs the simulation.
      */
     public void run (  ){
-        while(running){
+        while(true){
             int ticks =  0;
             while(ticks < fps){
                 update();
                 ticks++;
             }
             draw();
-            Util.drawLight(world, collumns, rows);
+            //Util.drawLight(world, collumns, rows);
             fps = 0;
             do{
                try{
@@ -114,14 +115,18 @@ public class Controller implements Runnable
      * @return int The amount of ticks to run the simulation for.
      */
     private int calcTicks () throws InputMismatchException{
+        System.out.println("");
         Scanner sc = new Scanner(System.in);
+        System.out.println("Enter ticks: ");
         int i = sc.nextInt();
+        System.out.println(i);
+        sc.reset();
         if(i <= 0) i = 1;
         return i;
     }
 
     public static void main(String[] args) {
-        new Controller(30, 30).start();
+        new Controller(9, 9).start();
     }
 }
 

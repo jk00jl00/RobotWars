@@ -68,7 +68,11 @@ public class World
      * Operation tick
      *
      */
-    public void tick (  ){}
+    public void tick (  ){
+        for(Robot r: robots){
+            r.update(this);
+        }
+    }
     /**
      * Operation getBoard
      *
@@ -247,6 +251,18 @@ public class World
 
     public int[] getLight() {
         return light;
+    }
+
+    public ArrayList<SimObject> getSimObjects() {
+        return objects;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public int getRows() {
+        return rows;
     }
 }
 
