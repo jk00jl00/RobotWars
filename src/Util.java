@@ -43,10 +43,10 @@ public class Util {
         return dAB == dAC + dBC;
     }
 
-    private static int[] queueToArray(Queue q, int columns, Queue.QueueNode p) {
+    private static int[] queueNodesToArray(QueueNode p, int columns) {
         ArrayList<Integer> i = new ArrayList<>();
-        while (p.hasFirst()){
-            Queue.QueueNode qn = q.getLastFromP(p);
+        while (p.hasLast()){
+            QueueNode qn = p.getLast();
             if(qn == null)break;
             i.add(qn.x + qn.y *columns);
         }
@@ -65,38 +65,63 @@ public class Util {
         int tx = tc%collums;
         int ty = (tc - tx)/collums;
 
-        Queue q = new Queue();
-        q.push(new Queue.QueueNode(sx, sy, 0, null));
         visited[sc] = true;
-        int level = 1;
+        ArrayList<Layer> layers = new ArrayList<>();
+        layers.add(new Layer(0, new QueueNode[]{new QueueNode(sx, sy, 0, null)}));
+        for(int i = 0; i < layers.size(); i++) {
+            Layer newLayer = checkLayer(layers.get(i), tx , ty, board, collums, rows, visited);
+            if(newLayer.queueNodes.length > 0)
+                layers.add(newLayer);
+        }
+        ArrayList<Layer> finalLayers = new ArrayList<>();
+        for(Layer l: layers){
+            if(l.queueNodes.length == 1 && l.layer != 0){
+                finalLayers.add(l);
+            }
+        }
+        if(finalLayers.size() == 0) return new int[0];
+        QueueNode fin = finalLayers.get(0).get(0);
+        for(Layer l: finalLayers){
+            if(l.get(0).dist < fin.dist) fin = l.get(0);
+        }
 
-        while(q.hasNext()){
-            Queue.QueueNode p = q.getFirst();
-            if(p == null) continue;
+
+        return queueNodesToArray(fin, collums);
+    }
+
+    private static Layer checkLayer(Layer layer, int tx, int ty, char[] board, int collums, int rows, boolean[] visited) {
+        ArrayList<QueueNode> queueNodes = new ArrayList<>();
+
+        for(int i = layer.checked; i < layer.queueNodes.length; i++){
+            QueueNode p = layer.get(layer.checked++);
 
             if(p.x == tx && p.y == ty){
-                return queueToArray(q, collums, p);
+                layer.checked = layer.queueNodes.length;
+                Layer l = new Layer(layer.layer + 1, new QueueNode[]{p});
+                l.checked = 1;
+                visited[tx + ty* collums] = false;
+                return l;
             }
 
-            int[] ymods = new int[]{0, 1, -1, 0};
-            int[] xmods = new int[]{1, 0, 0, -1};
+            int[] ymods = new int[]{0, 1, -1, 0, 1, -1, 1, -1};
+            int[] xmods = new int[]{1, 0, 0, -1, 1, -1, -1, 1};
 
-            for (int i = 0; i < 4; i++)
+            for (int a = 0; a < 8; a++)
             {
-                int nx = p.x + xmods[i];
+                int nx = p.x + xmods[a];
                 if(nx < 0 || nx >= collums) continue;
-                int ny = p.y + ymods[i];
+                int ny = p.y + ymods[a];
                 if(ny < 0 || ny >= rows) continue;
 
 
                 if (isValidPath(visited, nx + ny *collums, board)) {
                     visited[nx + ny*collums] = true;
-                    q.push(new Queue.QueueNode(nx, ny, p.dist + 1, p));
+                    queueNodes.add(new QueueNode(nx, ny, p.dist + 1, p));
                 }
             }
-
         }
-        return new int[0];
+        return new Layer(layer.layer + 1, queueNodes.toArray(new QueueNode[queueNodes.size()]));
+
     }
 
     private static boolean isValidPath(boolean[] bools, int coord, char[] board){
@@ -115,92 +140,43 @@ public class Util {
         return score;
     }
 
-    static class Queue{
-        QueueNode q;
-        void push(QueueNode q){
-            q.n = this.q;
-            this.q = q;
-        }
-        QueueNode pop(){
-            QueueNode temp = q;
-            q = q.n;
-            return temp;
+    static class Layer{
+        QueueNode[] queueNodes;
+        int checked;
+        int layer;
+        public Layer(int l,QueueNode[] a){
+            queueNodes = a;
+            layer = l;
+            checked = 0;
         }
 
-        QueueNode getLast(){
-            if(q == null){
-                return null;
-            }
-            QueueNode temp = q.getLast();
-            if(q.n == null) q = null;
-            else
-                q.removeLast();
-            return temp;
+        public QueueNode get(int i) {
+            return queueNodes[i];
+        }
+    }
+
+    static class QueueNode {
+        int x, y, dist;
+        QueueNode from;
+
+        QueueNode(int x, int y, int dist, QueueNode from) {
+            this.x = x;
+            this.y = y;
+            this.dist = dist;
+            this.from = from;
         }
 
-        QueueNode getLastFromP(QueueNode p) {
-            QueueNode temp = p.getFirst();
-            if(temp == p) q = null;
-            return temp;
+        public boolean hasLast() {
+            return from != null;
         }
 
-        public boolean hasNext() {
-            return q != null;
-        }
-
-        public int size(){
-            int i = 0;
-            QueueNode qn = q;
-            if(qn != null) {
-               while(qn.n != null){
-                   i++;
-                   qn = qn.n;
-               }
-               i++;
+        public QueueNode getLast() {
+            if(from.from == null){
+                QueueNode temp = from;
+                from = null;
+                return temp;
             }
-            return i;
-        }
-
-        public QueueNode getFirst() {
-            return q;
-        }
-
-        static class QueueNode{
-            int x, y, dist;
-            QueueNode n;
-            QueueNode first;
-
-            QueueNode(int x, int y, int dist, QueueNode first){
-                this.x = x;
-                this.y = y;
-                this.dist = dist;
-                this.first = first;
-            }
-
-            public QueueNode getLast() {
-                if(n == null) return this;
-                return n.getLast();
-            }
-
-            public void removeLast() {
-                if(n.n == null) n = null;
-                else n.removeLast();
-            }
-
-            public QueueNode getFirst() {
-                if(first == null)
-                    return this;
-                if(first.first == null){
-                    QueueNode temp = first;
-                    first = null;
-                    return temp;
-                }
-                return first.getFirst();
-            }
-
-            public boolean hasFirst() {
-                return first != null;
-            }
+            return from.getLast();
         }
     }
 }

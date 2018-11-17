@@ -83,12 +83,22 @@ public class Controller
                 ticks++;
             }
             draw();
+            System.out.print(System.lineSeparator());
+            for(Robot r: world.getRobots()){
+                System.out.print(r.toString() + " at x: " + r.getPos()%collumns+ ", y:" + r.getPos()/collumns
+                        + ", with energy: " + r.getEnergy() + ", Path : ");
+                System.out.print("[");
+                for(int i = 0; i < r.getPath().length; i++){
+                    System.out.print("X: " + r.getPath()[i]%collumns + "| Y: " + r.getPath()[i]/collumns + ", ");
+                }
+                System.out.println("]");
+            }
             //Util.drawLight(world, collumns, rows);
             fps = 0;
             do{
                try{
                    fps = calcTicks();
-               } catch (InputMismatchException e) {
+               } catch (NumberFormatException e) {
                    System.out.println("Please enter a positive integer");
                    fps = 0;
                }
@@ -114,19 +124,20 @@ public class Controller
      * Gets the amount of ticks the simulation will run for before the next request.
      * @return int The amount of ticks to run the simulation for.
      */
-    private int calcTicks () throws InputMismatchException{
+    private int calcTicks () throws NumberFormatException{
         System.out.println("");
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter ticks: ");
-        int i = sc.nextInt();
-        System.out.println(i);
+        String s = sc.nextLine();
+        if(s.length() == 0) return 1;
+        int i = Integer.parseInt(s);
         sc.reset();
         if(i <= 0) i = 1;
         return i;
     }
 
     public static void main(String[] args) {
-        new Controller(9, 9).start();
+        new Controller(20, 9).start();
     }
 }
 

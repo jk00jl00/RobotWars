@@ -1,3 +1,4 @@
+import java.sql.DriverPropertyInfo;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -167,8 +168,8 @@ public class World
                 x = ThreadLocalRandom .current().nextInt(0, cLimit);
                 y = ThreadLocalRandom.current().nextInt(0, rLimit);
             } while (places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
-            objects.add(new Food(y * columns + x, 50));
-            places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = objects.get(objects.size()- 1).represent;
+            objects.add(new Food(y * columns + x, 20));
+            places[objects.get(objects.size()- 1).position] = objects.get(objects.size()- 1).represent;
         }
         int x;
         int y;
@@ -247,7 +248,9 @@ public class World
      * Operation placeFood
      *
      */
-    private void placeFood (  ){}
+    private void placeFood (  ){
+
+    }
 
     public int[] getLight() {
         return light;
@@ -263,6 +266,29 @@ public class World
 
     public int getRows() {
         return rows;
+    }
+
+    public void removeFood(int targetPos) {
+        for(int i = 0; i < objects.size(); i++){
+            SimObject o = objects.get(i);
+            if(o instanceof Food && o.position == targetPos) {
+                objects.remove(o);
+                placeFood();
+                return;
+            }
+        }
+    }
+
+    public ArrayList<Robot> getRobots() {
+        return robots;
+    }
+
+    public Food getFood(int targetPos) {
+        Food f = new Food(-10, 0);
+        for(SimObject o : objects){
+            if(o instanceof Food && o.position == targetPos) f = (Food)o;
+        }
+        return f;
     }
 }
 
