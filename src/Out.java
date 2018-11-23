@@ -34,27 +34,27 @@ public class Out
     public void output ( char[] p ){
         System.out.print(System.lineSeparator());
         for(int y = 0; y < rows; y++) {
-            System.out.print(" X ");
+            System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
             if (y == 0) {
                 for (int i = 0; i < columns; i++) {
-                    System.out.print(" X ");
+                    System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
                 }
-                System.out.print(" X ");
+                System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
                 System.out.print(System.lineSeparator());
-                System.out.print(" X ");
+                System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
             }
             for (int x = 0; x < columns; x++) {
                 System.out.print(" " + p[x + y * columns] + " ");
             }
-            System.out.print(" X ");
+            System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
             System.out.print(System.lineSeparator());
             if (y == rows - 1) {
-                System.out.print(" X ");
+                System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
 
                 for (int i = 0; i < columns; i++) {
-                    System.out.print(" X ");
+                    System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
                 }
-                System.out.print(" X ");
+                System.out.print(" "+ Wall.DEFAULT_REPRESENT +" ");
 
             }
         }

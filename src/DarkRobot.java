@@ -9,6 +9,7 @@ public class DarkRobot extends Robot
      */
     public DarkRobot(int pos) {
         super(pos);
+        this.represent = 'D';
     }
 
     @Override
@@ -29,6 +30,11 @@ public class DarkRobot extends Robot
         path = lowest;
         targetPos = path[++pathIndex];
         return true;
+    }
+
+    @Override
+    protected void idle() {
+
     }
 }
 

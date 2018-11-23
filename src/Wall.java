@@ -9,6 +9,8 @@ public class Wall extends SimObject{
      * @param pos - the position the object will start in
      * @return Object
      */
+
+    public static final char DEFAULT_REPRESENT = 'X';
     public Wall(int pos) {
         super(pos);
         this.represent = 'X';

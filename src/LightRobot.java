@@ -9,6 +9,7 @@ public class LightRobot extends Robot
      */
     public LightRobot(int pos) {
         super(pos);
+        this.represent = 'R';
     }
 
     @Override
@@ -29,6 +30,11 @@ public class LightRobot extends Robot
         path = highest;
         targetPos = path[++pathIndex];
         return true;
+    }
+
+    @Override
+    protected void idle() {
+
     }
 }
 

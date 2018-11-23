@@ -7,7 +7,7 @@ import java.util.Arrays;
  */
 public class Util {
     public static boolean isWall(char[] a, int x, int y, int width){
-        return (a[x + y * width] == 'X');
+        return (a[x + y * width] == Wall.DEFAULT_REPRESENT);
     }
 
     public static void drawLight(World world, int collumns, int rows) {
@@ -26,7 +26,7 @@ public class Util {
     }
 
     public static boolean blocked(World world, ArrayList<int[]> blocked, int x, int y, int rows, int cols, int dx, int dy) {
-        if(world.getBoard()[x + dx + (y + dy) * cols] == 'X') return true;
+        if(world.getBoard()[x + dx + (y + dy) * cols] == Wall.DEFAULT_REPRESENT) return true;
         for(int[] a : blocked){
             if(inLine(new int[]{x, y},new int[]{x +dx, y + dy} , a )) return true;
         }
@@ -79,7 +79,7 @@ public class Util {
         }
         ArrayList<Layer> finalLayers = new ArrayList<>();
         for(Layer l: layers){
-            if(l.queueNodes.length == 1 && l.layer != 0 && board[l.queueNodes[0].x + l.queueNodes[0].y * collums] == 'B'){
+            if(l.queueNodes.length == 1 && l.layer != 0 && board[l.queueNodes[0].x + l.queueNodes[0].y * collums] == Food.DEFAULT_REPRESENT){
                 finalLayers.add(l);
             }
         }
@@ -167,7 +167,7 @@ public class Util {
     private static boolean isValidPath(boolean[] bools, int coord, char[] board){
         if(coord < 0 || !(coord < board.length)) return false;
         if(bools[coord]) return false;
-        return board[coord] == ' ' || board[coord] == 'B';
+        return (board[coord] == World.empty) || (board[coord] == Food.DEFAULT_REPRESENT);
     }
 
     public static int lightScore(int[] light, int[] ints) {

@@ -12,6 +12,8 @@ public class Food extends SimObject
      * @param pos - the position the object will start .
      * @return Object
      */
+    public static final char DEFAULT_REPRESENT = 'B';
+
     public Food(int pos, int value) {
         super(pos);
         this.value = value;

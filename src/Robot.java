@@ -5,8 +5,9 @@ public abstract class Robot
 {
     /** Attributes */
     /**
-     * 
+     *
      */
+    protected char represent;
     protected int energy;
     /**
      * 
@@ -42,7 +43,7 @@ public abstract class Robot
      * @param world
      */
     protected boolean findFood(World world){
-        if(cFood == this.pos || world.getBoard()[cFood] != 'B' || path.length == 0 || path == null) {
+        if(cFood == this.pos || world.getBoard()[cFood] != Food.DEFAULT_REPRESENT || path.length == 0 || path == null) {
             ArrayList<Food> foods = new ArrayList<>();
             for (SimObject o : world.getSimObjects()) {
                 if (o instanceof Food) foods.add((Food) o);
@@ -55,7 +56,7 @@ public abstract class Robot
             }
 
             for (int i = 0; i < paths.size(); i++) {
-                if ((paths.get(i).length <= 1 )|| (paths.get(i).length > this.energy )|| (world.getBoard()[paths.get(i)[paths.get(i).length - 1]] != 'B'))
+                if ((paths.get(i).length <= 1 )|| (paths.get(i).length > this.energy )|| (world.getBoard()[paths.get(i)[paths.get(i).length - 1]] != Food.DEFAULT_REPRESENT))
                     paths.remove(i--);
             }
 
@@ -82,12 +83,12 @@ public abstract class Robot
             if(pathIndex >= path.length) return;
             targetPos = path[pathIndex++];
         }
-        world.getBoard()[pos] = ' ';
-        if(world.getBoard()[targetPos] == 'B'){
+        world.getBoard()[pos] = World.empty;
+        if(world.getBoard()[targetPos] == Food.DEFAULT_REPRESENT){
             this.energy += world.getFood(targetPos).getValue();
             world.removeFood(targetPos);
         }
-        world.getBoard()[targetPos] = 'R';
+        world.getBoard()[targetPos] = this.represent;
         this.pos = targetPos;
     }
 
@@ -107,9 +108,7 @@ public abstract class Robot
      * Operation idle
      *
      */
-    private void idle (  ){
-
-    }
+    protected abstract void idle ();
 
     public int getPos() {
         return pos;

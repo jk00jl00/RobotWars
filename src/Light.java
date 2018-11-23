@@ -11,6 +11,8 @@ public class Light extends SimObject
      * @param pos - the position the object will start in
      * @return Object
      */
+    public static final char DEFAULT_REPRESENT = 'L';
+
     public Light(int pos, int radius) {
         super(pos);
         this.radius = radius;
