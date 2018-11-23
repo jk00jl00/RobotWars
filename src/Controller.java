@@ -1,4 +1,3 @@
-import java.util.InputMismatchException;
 import java.util.Scanner;
 /*Controller class*/
 public class Controller
@@ -28,7 +27,9 @@ public class Controller
     /**
      * The amount of ticks to be done before the next step of the simulation.
      */
-    private int fps = 1;
+    private int framesToRun = 1;
+
+    int fps = 0;
     /**
      * The thread running the simulation
      */
@@ -76,11 +77,26 @@ public class Controller
      * Contains the simulationloop that runs the simulation.
      */
     public void run (  ){
+        draw();
         while(true){
+
             int ticks =  0;
-            while(ticks < fps){
+            out.setUpLoadingbar(framesToRun);
+            while(ticks < framesToRun){
                 update();
                 ticks++;
+                if(fps != 0){
+                    draw();
+                    try {
+                        Thread.sleep(1000/fps);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    out.updateLoadingBar();
+                    out.printLoadingBar();
+                }
             }
             draw();
             System.out.print(System.lineSeparator());
@@ -94,15 +110,15 @@ public class Controller
                 System.out.println("]");
             }
             //Util.drawLight(world, collumns, rows);
-            fps = 0;
+            framesToRun = 0;
             do{
                try{
-                   fps = calcTicks();
+                   framesToRun = calcTicks();
                } catch (NumberFormatException e) {
                    System.out.println("Please enter a positive integer");
-                   fps = 0;
+                   framesToRun = 0;
                }
-            }while(fps == 0);
+            }while(framesToRun == 0);
         }
     }
     /**
@@ -111,12 +127,14 @@ public class Controller
      */
     private void update (  ){
         world.tick();
+
     }
     /**
      * Method draw
      * Gives the Out objekt the simulation world and tells it to print.
      */
     private void draw (  ){
+        Out.clrscr();
         out.output(world.getBoard());
     }
     /**
@@ -130,14 +148,34 @@ public class Controller
         System.out.println("Enter ticks: ");
         String s = sc.nextLine();
         if(s.length() == 0) return 1;
-        int i = Integer.parseInt(s);
+        int i = 0;
+        if(s.matches("[0-9]+/[0-9]+")){
+            String ticks = "";
+            String framerate = "";
+            int a = 0;
+            while(!s.substring(a, a+ 1).contains("/")){
+                ticks += s.substring(a,a+1);
+                a++;
+            }
+            a++;
+            while(a < s.length()){
+                framerate += s.substring(a, a+1);
+                a++;
+            }
+            s = ticks;
+            fps = Integer.parseInt(framerate);
+        }
+        else{
+            fps = 0;
+        }
+        i = Integer.parseInt(s);
         sc.reset();
         if(i <= 0) i = 1;
         return i;
     }
 
     public static void main(String[] args) {
-        new Controller(20, 9).start();
+        new Controller(27, 27).start();
     }
 }
 

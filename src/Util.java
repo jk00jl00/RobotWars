@@ -1,4 +1,6 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by isjo16 on 2018-11-16.
@@ -47,7 +49,6 @@ public class Util {
         ArrayList<Integer> i = new ArrayList<>();
         while (p.hasLast()){
             QueueNode qn = p.getLast();
-            if(qn == null)break;
             i.add(qn.x + qn.y *columns);
         }
         i.add(p.x + p.y *columns);
@@ -57,7 +58,7 @@ public class Util {
         return ints;
     }
 
-    public static int[] shortestPath(int sc, int tc, char[] board,int collums, int rows){
+    public static int[] shortestPath(int sc, int tc, char[] board,int collums, int rows,int max){
         boolean[] visited = new boolean[board.length];
 
         int sx = sc%collums;
@@ -69,13 +70,16 @@ public class Util {
         ArrayList<Layer> layers = new ArrayList<>();
         layers.add(new Layer(0, new QueueNode[]{new QueueNode(sx, sy, 0, null)}));
         for(int i = 0; i < layers.size(); i++) {
-            Layer newLayer = checkLayer(layers.get(i), tx , ty, board, collums, rows, visited);
+            Layer newLayer = checkLayer(layers.get(i), tx , ty, board, collums, rows, visited, max);
+            //char[] chars = Arrays.copyOf(board, board.length);
+            //chars[tc] = 'T';
+            //printLayers(layers, chars, collums);
             if(newLayer.queueNodes.length > 0)
                 layers.add(newLayer);
         }
         ArrayList<Layer> finalLayers = new ArrayList<>();
         for(Layer l: layers){
-            if(l.queueNodes.length == 1 && l.layer != 0){
+            if(l.queueNodes.length == 1 && l.layer != 0 && board[l.queueNodes[0].x + l.queueNodes[0].y * collums] == 'B'){
                 finalLayers.add(l);
             }
         }
@@ -89,11 +93,47 @@ public class Util {
         return queueNodesToArray(fin, collums);
     }
 
-    private static Layer checkLayer(Layer layer, int tx, int ty, char[] board, int collums, int rows, boolean[] visited) {
+    private static void printLayers(ArrayList<Layer> layers, char[] board, int columns) {
+        char[] c = Arrays.copyOf(board, board.length);
+
+        for(Layer l : layers){
+            for(QueueNode n : l.queueNodes){
+                c[n.x + n.y * columns] =(char) ((int)'0' + n.dist);
+            }
+        }
+        for(int y = 0; y < columns; y++) {
+            System.out.print(" X ");
+            if (y == 0) {
+                for (int i = 0; i < columns; i++) {
+                    System.out.print(" X ");
+                }
+                System.out.print(" X ");
+                System.out.print(System.lineSeparator());
+                System.out.print(" X ");
+            }
+            for (int x = 0; x < columns; x++) {
+                System.out.print(" " + c[x + y * columns] + " ");
+            }
+            System.out.print(" X ");
+            System.out.print(System.lineSeparator());
+            if (y == columns - 1) {
+                System.out.print(" X ");
+
+                for (int i = 0; i < columns; i++) {
+                    System.out.print(" X ");
+                }
+                System.out.print(" X ");
+
+            }
+        }
+    }
+
+    private static Layer checkLayer(Layer layer, int tx, int ty, char[] board, int collums, int rows, boolean[] visited, int max) {
         ArrayList<QueueNode> queueNodes = new ArrayList<>();
 
         for(int i = layer.checked; i < layer.queueNodes.length; i++){
             QueueNode p = layer.get(layer.checked++);
+            if(p.dist > max) return new Layer(layer.layer + 1, new QueueNode[0]);
 
             if(p.x == tx && p.y == ty){
                 layer.checked = layer.queueNodes.length;

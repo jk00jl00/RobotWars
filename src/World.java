@@ -8,7 +8,7 @@ public class World
     /**
      * 
      */
-    private int fuelPerCell =  3;
+    private int fuelPerCell =  8;
     /**
      * 
      */
@@ -135,8 +135,8 @@ public class World
                         for (int dx = -i; dx <= i; dx++) {
                             if((x + dx >= columns || dx+ x < 0) ||(y + dy >= rows || y + dy < 0)) continue;
                             if(places[x + dx + (dy + y) * columns] == 'X') blocked.add(new int[]{x+ dx, y+ dy});
-                                if(!Util.blocked(this, blocked, x, y, rows, columns, dx, dy))
-                            light[x + dx + (dy + y) * columns] += li.getRadius() - i;
+                            if(!Util.blocked(this, blocked, x, y, rows, columns, dx, dy))
+                                light[x + dx + (dy + y) * columns] += li.getRadius() - i;
                         }
                     else {
                         for (int dx = -i; dx <= i; dx += i * 2) {
@@ -168,7 +168,7 @@ public class World
                 x = ThreadLocalRandom .current().nextInt(0, cLimit);
                 y = ThreadLocalRandom.current().nextInt(0, rLimit);
             } while (places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
-            objects.add(new Food(y * columns + x, 20));
+            objects.add(new Food((y + r * boxHeight) * columns + x + c * boxWidth, 20));
             places[objects.get(objects.size()- 1).position] = objects.get(objects.size()- 1).represent;
         }
         int x;
@@ -235,7 +235,11 @@ public class World
         } while(places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
 
         places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = 'R';
-        robots.add(new LightRobot((x+ c* boxWidth) + (y + r * boxHeight) * columns));
+        int randomInt = ThreadLocalRandom.current().nextInt(0,2);
+        Robot toAdd = (randomInt == 0)?
+                new LightRobot((x+ c* boxWidth) + (y + r * boxHeight) * columns):
+                new DarkRobot((x+ c* boxWidth) + (y + r * boxHeight) * columns);
+        robots.add(toAdd);
     }
 
     /**
@@ -249,7 +253,12 @@ public class World
      *
      */
     private void placeFood (  ){
-
+        Food f = new Food(ThreadLocalRandom.current().nextInt(0, columns*rows -1), 20);
+        while (places[f.position] != ' '){
+            f.position = ThreadLocalRandom.current().nextInt(0, columns*rows -1);
+        }
+        places[f.position] = f.represent;
+        objects.add(f);
     }
 
     public int[] getLight() {

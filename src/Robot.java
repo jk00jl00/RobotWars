@@ -7,21 +7,22 @@ public abstract class Robot
     /**
      * 
      */
-    private int energy;
+    protected int energy;
     /**
      * 
      */
-    private int cFood;
+    protected int cFood;
     /**
      * 
      */
-    private int targetPos;
+    protected int targetPos;
     /**
      * 
      */
-    private int[] path;
-    private int pathIndex = 0;
-    private int pos;
+    protected int[] path;
+    protected ArrayList<int[]> paths;
+    protected int pathIndex = 0;
+    protected int pos;
     /**
      * Operation 
      *
@@ -40,17 +41,17 @@ public abstract class Robot
      *
      * @param world
      */
-    private void findFood(World world){
-        if(cFood == this.pos || world.getBoard()[cFood] != 'B' || path.length == 0) {
+    protected boolean findFood(World world){
+        if(cFood == this.pos || world.getBoard()[cFood] != 'B' || path.length == 0 || path == null) {
             ArrayList<Food> foods = new ArrayList<>();
             for (SimObject o : world.getSimObjects()) {
                 if (o instanceof Food) foods.add((Food) o);
             }
 
-            ArrayList<int[]> paths = new ArrayList<>();
+            paths = new ArrayList<>();
 
             for (Food f : foods) {
-                paths.add(Util.shortestPath(pos, f.getPos(), world.getBoard(), world.getColumns(), world.getRows()));
+                paths.add(Util.shortestPath(pos, f.getPos(), world.getBoard(), world.getColumns(), world.getRows(), energy));
             }
 
             for (int i = 0; i < paths.size(); i++) {
@@ -61,23 +62,12 @@ public abstract class Robot
             if (paths.size() == 0) {
                 this.cFood = this.pos;
                 this.path = new int[0];
-                return;
+                return false;
             }
-
-            int[] lScore = new int[paths.size()];
-            for (int i = 0; i < paths.size(); i++) {
-                lScore[i] = Util.lightScore(world.getLight(), paths.get(i));
-            }
-            int[] highest = paths.get(0);
-            for (int i = 1; i < paths.size(); i++) {
-                if (lScore[i] > lScore[paths.indexOf(highest)])
-                    highest = paths.get(i);
-            }
-            cFood = highest[highest.length - 1];
-            pathIndex = 0;
-            path = highest;
-            targetPos = path[++pathIndex];
+            return true;
         }
+        else
+            return false;
     }
 
     /**
@@ -86,7 +76,8 @@ public abstract class Robot
      * @param world
      */
     private void move(World world){
-        if(path == null)   return;
+        if(path == null)  return;
+
         if(targetPos == this.pos){
             if(pathIndex >= path.length) return;
             targetPos = path[pathIndex++];

@@ -1,5 +1,5 @@
 
-public class LightRobot extends Robot
+public class DarkRobot extends Robot
 {
     /**
      * Operation
@@ -7,7 +7,7 @@ public class LightRobot extends Robot
      * @param pos -
      * @return Robot
      */
-    public LightRobot(int pos) {
+    public DarkRobot(int pos) {
         super(pos);
     }
 
@@ -19,14 +19,14 @@ public class LightRobot extends Robot
         for (int i = 0; i < paths.size(); i++) {
             lScore[i] = Util.lightScore(world.getLight(), paths.get(i));
         }
-        int[] highest = paths.get(0);
+        int[] lowest = paths.get(0);
         for (int i = 1; i < paths.size(); i++) {
-            if (lScore[i] > lScore[paths.indexOf(highest)])
-                highest = paths.get(i);
+            if (lScore[i] < lScore[paths.indexOf(lowest)])
+                lowest = paths.get(i);
         }
-        cFood = highest[highest.length - 1];
+        cFood = lowest[lowest.length - 1];
         pathIndex = 0;
-        path = highest;
+        path = lowest;
         targetPos = path[++pathIndex];
         return true;
     }
