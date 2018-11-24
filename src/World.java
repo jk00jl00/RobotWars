@@ -6,15 +6,11 @@ public class World
 {
     /** Attributes */
     /**
-     * 
-     */
-    private int fuelPerCell =  8;
-    /**
-     * 
+     *
      */
     private int size;
     /**
-     * 
+     *
      */
     private int[] light;
     /**
@@ -22,36 +18,105 @@ public class World
      */
     private char[] places;
     /**
-     * 
+     *
      */
     private ArrayList<Robot> robots;
     /**
-     * 
+     *
      */
     private ArrayList<SimObject>  objects;
     /**
-     * 
+     *
      */
     private int rows;
     /**
-     * 
+     *
      */
     private int columns;
+
     public static final char empty = ' ';
-    private double maxwalls = 150;
 
     /**
      * Used when genearing the world to
      */
-    private int boxHeight = 9;
+    private static int boxHeight = 9;
     /**
      *
      */
-    private int boxWidth = 9;
-    /** Associations */
-    private Robot unnamed_1;
-    private int maxLightRadius = 9;
-    private int minLightRadius = 5;
+    private static int boxWidth = 9;
+    public static int getBoxHeight() {
+        return boxHeight;
+    }
+
+    public static int getBoxWidth() {
+        return boxWidth;
+    }
+
+    public static int getFuelPerCell() {
+        return fuelPerCell;
+    }
+
+    public static int getMaxFuelValue() {
+        return maxFuelValue;
+    }
+
+    public static int getMinFuelValue() {
+        return minFuelValue;
+    }
+
+    public static int getMaxLightRadius() {
+        return maxLightRadius;
+    }
+
+    public static double getMaxwalls() {
+        return maxwalls;
+    }
+
+    public static int getMinLightRadius() {
+        return minLightRadius;
+    }
+
+    public static void setBoxHeight(int boxHeight) {
+        World.boxHeight = boxHeight;
+    }
+
+    public static void setBoxWidth(int boxWidth) {
+        World.boxWidth = boxWidth;
+    }
+
+    public static void setFuelPerCell(int fuelPerCell) {
+        World.fuelPerCell = fuelPerCell;
+    }
+
+    public static void setMaxFuelValue(int maxFuelValue) {
+        World.maxFuelValue = maxFuelValue;
+    }
+
+    public static void setMinFuelValue(int minFuelValue) {
+        World.minFuelValue = minFuelValue;
+    }
+
+    public static void setMaxLightRadius(int maxLightRadius) {
+        World.maxLightRadius = maxLightRadius;
+    }
+
+    public static void setMaxwalls(double maxwalls) {
+        World.maxwalls = maxwalls;
+    }
+
+    public static void setMinLightRadius(int minLightRadius) {
+        World.minLightRadius = minLightRadius;
+    }
+
+    /**
+     *
+     */
+    private static int fuelPerCell =  5;
+    private static int maxFuelValue = 20;
+    private static int minFuelValue = 20;
+    private static int maxLightRadius = 9;
+    private static double maxwalls = 150;
+    private static int minLightRadius = 5;
 
     /**
      * Operation
@@ -70,8 +135,12 @@ public class World
      *
      */
     public void tick (  ){
-        for(Robot r: robots){
+        for(int i  = 0; i < robots.size(); i++){
+            Robot r = robots.get(i);
             r.update(this);
+            if(i == robots.size()) break;
+            if(r != robots.get(i))
+                i--;
         }
     }
     /**
@@ -168,7 +237,7 @@ public class World
                 x = ThreadLocalRandom .current().nextInt(0, cLimit);
                 y = ThreadLocalRandom.current().nextInt(0, rLimit);
             } while (places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != World.empty);
-            objects.add(new Food((y + r * boxHeight) * columns + x + c * boxWidth, 20));
+            objects.add(new Food((y + r * boxHeight) * columns + x + c * boxWidth, ThreadLocalRandom.current().nextInt(minFuelValue, maxFuelValue +1)));
             places[objects.get(objects.size()- 1).position] = objects.get(objects.size()- 1).represent;
         }
         int x;
@@ -240,6 +309,12 @@ public class World
                 new DarkRobot((x+ c* boxWidth) + (y + r * boxHeight) * columns);
         places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] = toAdd.represent;
         robots.add(toAdd);
+
+        do {
+            x = ThreadLocalRandom.current().nextInt(0, cLimit);
+            y = ThreadLocalRandom.current().nextInt(0, rLimit);
+        } while(places[(x+ c* boxWidth) + (y + r * boxHeight) * columns] != empty);
+        robots.add(new CleanerBot((x+ c* boxWidth) + (y + r * boxHeight) * columns));
     }
 
     /**
@@ -298,6 +373,16 @@ public class World
             if(o instanceof Food && o.position == targetPos) f = (Food)o;
         }
         return f;
+    }
+
+    public void removeRobot(int targetPos) {
+        for(int i = 0; i < robots.size(); i++){
+            Robot r = robots.get(i);
+            if(r.pos == targetPos) {
+                robots.remove(r);
+                return;
+            }
+        }
     }
 }
 

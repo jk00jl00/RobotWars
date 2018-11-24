@@ -76,7 +76,7 @@ public abstract class Robot
      *
      * @param world
      */
-    private void move(World world){
+    protected void move(World world){
         if(path == null)  return;
 
         if(targetPos == this.pos){

@@ -1,3 +1,5 @@
+import com.sun.org.apache.xerces.internal.impl.xs.SchemaNamespaceSupport;
+
 import java.util.Scanner;
 /*Controller class*/
 public class Controller
@@ -7,6 +9,7 @@ public class Controller
      * Keeps tab on if the simulation is running
      */
     //private boolean running = false;
+    private boolean running;
     /**
      * Keeps track on the amount of collumns in the world
      */
@@ -24,16 +27,15 @@ public class Controller
      * updates itself.
      */
     private World world;
+
     /**
      * The amount of ticks to be done before the next step of the simulation.
      */
     private int framesToRun = 1;
-
     int fps = 0;
     /**
-     * The thread running the simulation
+     * The thread checking for loop breaks;
      */
-   // private Thread thread;
     /**
      * Constructor
      *
@@ -51,35 +53,27 @@ public class Controller
      *  Creates a new Thread and starts the simulation loop.
      */
     public synchronized void start (  ){
-       /* if(!running){
-            running = true;
-            thread = new Thread(this);
-            thread.start();
-        }*/
-       run();
+       if(!running){
+           running = true;
+           run();
+       }
     }
     /**
      * Method stop
      * Closes the simulation loop and joins the simulation thread with the main thread.
      */
-    /*public void stop (  ){
+    public void stop (  ){
         if(running) {
             running = false;
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
-    }*/
+    }
     /**
      * Method run
      * Contains the simulationloop that runs the simulation.
      */
     public void run (  ){
         draw();
-        while(true){
-
+        while(running){
             int ticks =  0;
             out.setUpLoadingbar(framesToRun);
             while(ticks < framesToRun){
@@ -100,6 +94,11 @@ public class Controller
             }
             draw();
             System.out.print(System.lineSeparator());
+            System.out.println("Ticks run = " + ticks);
+            System.out.println("Robots Alive = " + world.getRobots().size());
+            System.out.print(System.lineSeparator());
+
+            /*
             for(Robot r: world.getRobots()){
                 System.out.print(r.toString() + " at x: " + r.getPos()%collumns+ ", y:" + r.getPos()/collumns
                         + ", with energy: " + r.getEnergy() + ", Path : ");
@@ -108,7 +107,7 @@ public class Controller
                     System.out.print("X: " + r.getPath()[i]%collumns + "| Y: " + r.getPath()[i]/collumns + ", ");
                 }
                 System.out.println("]");
-            }
+            }*/
             //Util.drawLight(world, collumns, rows);
             framesToRun = 0;
             do{
@@ -119,6 +118,15 @@ public class Controller
                    framesToRun = 0;
                }
             }while(framesToRun == 0);
+            if(fps < 0){
+                switch (fps){
+                    case -1:
+                        System.exit(0);
+                    case -2:
+                        running = false;
+                        break;
+                }
+            }
         }
     }
     /**
@@ -165,6 +173,10 @@ public class Controller
             s = ticks;
             fps = Integer.parseInt(framerate);
         }
+        else if(s.matches("/[0-9]{1}")){
+            fps = -(Integer.parseInt(s.substring(1, s.length())));
+            return 1;
+        }
         else{
             fps = 0;
         }
@@ -172,10 +184,6 @@ public class Controller
         sc.reset();
         if(i <= 0) i = 1;
         return i;
-    }
-
-    public static void main(String[] args) {
-        new Controller(27, 27).start();
     }
 }
 

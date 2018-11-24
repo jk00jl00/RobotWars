@@ -20,6 +20,10 @@ public class Food extends SimObject
         this.represent = 'B';
     }
 
+    public Food(int pos) {
+        this(pos, 20);
+    }
+
     public int getValue(){
         return value;
     }

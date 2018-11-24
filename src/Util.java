@@ -1,6 +1,7 @@
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IntSummaryStatistics;
 
 /**
  * Created by isjo16 on 2018-11-16.
@@ -51,6 +52,8 @@ public class Util {
             QueueNode qn = p.getLast();
             i.add(qn.x + qn.y *columns);
         }
+
+
         i.add(p.x + p.y *columns);
         int[] ints = new int[i.size()];
         for(int a = 0; a < i.size(); a++)
@@ -71,15 +74,12 @@ public class Util {
         layers.add(new Layer(0, new QueueNode[]{new QueueNode(sx, sy, 0, null)}));
         for(int i = 0; i < layers.size(); i++) {
             Layer newLayer = checkLayer(layers.get(i), tx , ty, board, collums, rows, visited, max);
-            //char[] chars = Arrays.copyOf(board, board.length);
-            //chars[tc] = 'T';
-            //printLayers(layers, chars, collums);
             if(newLayer.queueNodes.length > 0)
                 layers.add(newLayer);
         }
         ArrayList<Layer> finalLayers = new ArrayList<>();
         for(Layer l: layers){
-            if(l.queueNodes.length == 1 && l.layer != 0 && board[l.queueNodes[0].x + l.queueNodes[0].y * collums] == Food.DEFAULT_REPRESENT){
+            if(l.queueNodes.length == 1 && l.layer != 0){
                 finalLayers.add(l);
             }
         }
@@ -167,7 +167,7 @@ public class Util {
     private static boolean isValidPath(boolean[] bools, int coord, char[] board){
         if(coord < 0 || !(coord < board.length)) return false;
         if(bools[coord]) return false;
-        return (board[coord] == World.empty) || (board[coord] == Food.DEFAULT_REPRESENT);
+        return (board[coord] == World.empty) || (board[coord] == Food.DEFAULT_REPRESENT || board[coord] == 'R' || board[coord] == 'D');
     }
 
     public static int lightScore(int[] light, int[] ints) {
